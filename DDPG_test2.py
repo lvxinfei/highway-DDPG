@@ -231,7 +231,7 @@ hidden_dim = 256
 
 ddpg = DDPG(action_dim, state_dim, hidden_dim)
 
-max_steps = 350
+max_steps = 450
 rewards = []
 batch_size = 32
 VAR = 0.5  # control exploration
@@ -241,7 +241,7 @@ writer = SummaryWriter("./logs_train")
 total_train_step = 0
 #加载模型===========================================================
 #加载上次训练好的模型，如果test_flag=True,则加载已保存的模型
-test_flag=True#True  #True
+test_flag=False#True  #True
 if test_flag:
     ddpg = torch.load('./weights_test/ddpg_net.pth')
     # ddpg.value_net.load_state_dict(torch.load('./weights_test/ddpg_value_net.pth'))
@@ -286,12 +286,12 @@ env.close()
 writer.close()
 
 #仅保存模型参数
-# torch.save(ddpg, './weights_test/ddpg_net.pth')
+torch.save(ddpg, './weights_test/ddpg_net.pth')
 # torch.save(ddpg.value_net.state_dict(), './weights_test/ddpg_value_net.pth')
 # torch.save(ddpg.target_value_net.state_dict(), './weights_test/ddpg_target_value_net.pth')
 # torch.save(ddpg.policy_net.state_dict(), './weights_test/ddpg_policy_net.pth')
 # torch.save(ddpg.target_policy_net.state_dict(), './weights_test/ddpg_target_policy_net.pth')
-# print("模型保存成功！")
+print("模型保存成功！")
 
 plt.plot(rewards)
 plt.savefig('./episode_reward.jpg')

@@ -231,7 +231,7 @@ hidden_dim = 256
 
 ddpg = DDPG(action_dim, state_dim, hidden_dim)
 
-max_steps = 450
+max_steps = 350
 rewards = []
 batch_size = 32
 VAR = 0.5  # control exploration

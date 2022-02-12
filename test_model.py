@@ -223,7 +223,7 @@ hidden_dim = 256
 
 ddpg = torch.load('./weights_test/ddpg_net.pth')
 
-max_steps = 20
+max_steps = 10
 rewards = []
 batch_size = 32
 

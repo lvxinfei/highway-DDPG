@@ -223,10 +223,10 @@ hidden_dim = 256
 
 ddpg = torch.load('./weights_test/ddpg_net.pth')
 
-max_steps = 10
+max_steps = 1
 rewards = []
 batch_size = 32
-
+speed = []
 with torch.no_grad():
     for step in range(max_steps):
         print("================第{}回合======================================".format(step+1))
@@ -237,8 +237,12 @@ with torch.no_grad():
         while not done:
             action = ddpg.policy_net.get_action(state)
             next_state, reward, done, info = env.step(action)
+            speed.append(info['speed'])
+            print(info)
             next_state = torch.flatten(torch.tensor(next_state))
             state = next_state
             env.render()
 env.close()
 
+plt.plot(speed)
+plt.show()

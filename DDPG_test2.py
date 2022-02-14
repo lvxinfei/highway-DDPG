@@ -118,10 +118,10 @@ class DDPG(object):
         self.gamma = 0.99
         self.min_value = -np.inf
         self.max_value = np.inf
-        self.soft_tau = 2e-2
-        self.replay_buffer_size = 7000
-        self.value_lr = 5e-4
-        self.policy_lr = 5e-4
+        self.soft_tau = 1e-2
+        self.replay_buffer_size = 100000
+        self.value_lr = 1e-3
+        self.policy_lr = 1e-4
 
         self.value_net = ValueNetwork(state_dim, action_dim, hidden_dim).to(device)
         self.policy_net = PolicyNetwork(state_dim, action_dim, hidden_dim).to(device)
@@ -137,6 +137,7 @@ class DDPG(object):
 
         self.value_optimizer = optim.Adam(self.value_net.parameters(), lr=self.value_lr)
         self.policy_optimizer = optim.Adam(self.policy_net.parameters(), lr=self.policy_lr)
+
 
         self.value_criterion = nn.MSELoss()
 
@@ -202,10 +203,10 @@ env.configure(
     "duration": 500,
     "collision_reward": -100,
     "lane_centering_cost": 1,
-    "action_reward": 0.3,
-    "arrival_reward": 100,
+    "action_reward": 0.03,
+    "arrival_reward": 50,
     "controlled_vehicles": 1,
-    "other_vehicles": 10,
+    "other_vehicles": 1,
     "screen_width": 600,
     "screen_height": 600,
     "centering_position": [0.5, 0.5],
@@ -217,7 +218,7 @@ env.configure(
 
 
 env.reset()
-env = NormalizedActions(env)
+# env = NormalizedActions(env)
 
 
 print(env.observation_space.shape)
@@ -231,10 +232,10 @@ hidden_dim = 256
 
 ddpg = DDPG(action_dim, state_dim, hidden_dim)
 
-max_steps = 350
+max_steps = 550
 rewards = []
 batch_size = 32
-VAR = 0.5  # control exploration
+VAR = 1  # control exploration
 
 
 writer = SummaryWriter("./logs_train")
@@ -252,6 +253,8 @@ if test_flag:
     print("模型加载成功！")
 
 
+scheduler = torch.optim.lr_scheduler.ExponentialLR(ddpg.value_optimizer, gamma=0.999)
+scheduler2 = torch.optim.lr_scheduler.ExponentialLR(ddpg.policy_optimizer, gamma=0.999)
 
 for step in range(max_steps):
     print("================第{}回合======================================".format(step+1))
@@ -262,8 +265,9 @@ for step in range(max_steps):
 
     while not done:
         action = ddpg.policy_net.get_action(state)
-        action[0] = np.clip(np.random.normal(action[0],VAR),-0.3,1) # 在动作选择上添加随机噪声
+        action[0] = np.clip(np.random.normal(action[0],VAR),0,1) # 在动作选择上添加随机噪声
         action[1] = np.clip(np.random.normal(action[1],VAR),-1,1) # 在动作选择上添加随机噪声
+        # print(action)
         # action = np.clip(np.random.normal(action,VAR),-1,1)
         next_state, reward, done, info = env.step(action)
         next_state = torch.flatten(torch.tensor(next_state))
@@ -281,12 +285,17 @@ for step in range(max_steps):
     if total_train_step % 10 == 0:
             writer.add_scalar("train_reward", episode_reward, total_train_step)
     rewards.append(episode_reward)
-    print("回合奖励为：{}".format(episode_reward))
+    print("回合奖励为：{} | 价值网络学习率为：{} | 价值网络学习率为：{} | 策略网络学习率为：{}".format(episode_reward,
+    	ddpg.value_optimizer.state_dict()['param_groups'][0]['lr'],
+    	ddpg.policy_optimizer.state_dict()['param_groups'][0]['lr']))
+    if step % 10 == 0:#每10回合，学习率衰减1次
+    	scheduler.step()
+    	scheduler2.step()
 env.close()
 writer.close()
 
 #仅保存模型参数
-torch.save(ddpg, './weights_test/ddpg_net.pth')
+torch.save(ddpg, './weights_test/ddpg_net2.pth')
 # torch.save(ddpg.value_net.state_dict(), './weights_test/ddpg_value_net.pth')
 # torch.save(ddpg.target_value_net.state_dict(), './weights_test/ddpg_target_value_net.pth')
 # torch.save(ddpg.policy_net.state_dict(), './weights_test/ddpg_policy_net.pth')
@@ -294,4 +303,5 @@ torch.save(ddpg, './weights_test/ddpg_net.pth')
 print("模型保存成功！")
 
 plt.plot(rewards)
-plt.savefig('./episode_reward.jpg')
+plt.show()
+# plt.savefig('./episode_reward.jpg')

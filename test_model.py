@@ -203,7 +203,7 @@ env.configure(
     "action_reward": 0.3,
     "arrival_reward": 100,
     "controlled_vehicles": 1,
-    "other_vehicles": 10,
+    "other_vehicles": 1,
     "screen_width": 600,
     "screen_height": 600,
     "centering_position": [0.5, 0.5],
@@ -221,7 +221,9 @@ action_dim = env.action_space.shape[0]
 hidden_dim = 256
 
 
-ddpg = torch.load('./weights_test/ddpg_net.pth')
+ddpg = torch.load('./weights_test/ddpg_net3.pth')
+
+
 
 max_steps = 1
 rewards = []

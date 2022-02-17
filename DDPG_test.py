@@ -21,8 +21,7 @@ env = gym.make("lvxinfei-v2")
 env.reset()
 
 
-ddpg = torch.load('./weights_test/ddpg_net2.pth')
-print(ddpg)
+ddpg = torch.load('./weights_test/ddpg_net0.pth')
 
 
 max_steps = 10

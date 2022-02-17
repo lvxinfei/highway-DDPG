@@ -88,19 +88,10 @@ class lvxinfeiv2(AbstractEnv):
     def _reward(self, action: np.ndarray) -> float:#奖励函数部分
         longitudinal, lateral = self.vehicle.lane.local_coordinates(self.vehicle.position)
         lane_centering_reward = 1/(1+self.config["lane_centering_cost"]*lateral**2)
-        action_reward = 1/(1+self.config["action_reward"]*self.vehicle.speed)
-        # reward = \
-        #     + lane_centering_reward \
-        #     + (self.config["arrival_reward"]) * self.is_success() \
-        #     + action_reward \
-        #     + self.config["collision_reward"] * (self.vehicle.crashed or not self.vehicle.on_road)
-        # if self.vehicle.crashed or not self.vehicle.on_road:
-        #   reward = self.config["collision_reward"]
-        # return utils.lmap(reward, [self.config["collision_reward"], 104], [0, 1])
+        speed_reward = 1/(1+self.config["lane_centering_cost"]*(self.vehicle.speed * np.sin(self.vehicle.heading))**2)
         reward = \
-            + self.vehicle.speed \
             + (self.config["arrival_reward"]) * self.is_success() \
-            - (lateral**2)
+            + lane_centering_reward
 
         if self.vehicle.crashed or not self.vehicle.on_road:
           reward = self.config["collision_reward"]
@@ -197,8 +188,8 @@ class lvxinfeiv2(AbstractEnv):
                 self.road.vehicles.append(vehicle)
         
         # lane = self.np_random.choice(self.road.network.lanes_list())
-        lane = self.road.network.lanes_list()[0]
-        lane2 = self.road.network.lanes_list()[1]
+        lane = self.road.network.lanes_list()[2]
+        lane2 = self.road.network.lanes_list()[3]
         self.goal1 = Landmark(self.road, lane.position(lane.length, 0))#, heading=lane.heading
         self.goal2 = Landmark(self.road, lane2.position(lane2.length, 0))#, heading=lane.heading
         # print(self.goal1)

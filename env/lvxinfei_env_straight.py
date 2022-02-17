@@ -11,6 +11,10 @@ from highway_env.road.road import Road, RoadNetwork
 from highway_env.vehicle.behavior import IDMVehicle
 from highway_env.vehicle.objects import Landmark
 
+from highway_env.envs.common.action import Action
+from highway_env.utils import near_split
+from highway_env.vehicle.controller import ControlledVehicle
+
 import re
 #文件位置C:\Users\Administrator\AppData\Local\Programs\Python\Python36\Lib\site-packages\highway_env\envs\lvxinfei_env
 
@@ -46,10 +50,10 @@ class lvxinfeiv1(AbstractEnv):
             "simulation_frequency": 15,
             "policy_frequency": 5,
             "duration": 500,
-            "collision_reward": -1,
+            "collision_reward": -200,
             "lane_centering_cost": 1,
             "action_reward": 0.05,
-            "arrival_reward": 5,
+            "arrival_reward": 100,
             "controlled_vehicles": 1,
             "other_vehicles": 1,
             "reward_speed_range": [20, 30],
@@ -90,19 +94,17 @@ class lvxinfeiv1(AbstractEnv):
 
 
     def _reward(self, action: np.ndarray) -> float:#奖励函数部分
-        neighbours = self.road.network.all_side_lanes(self.vehicle.lane_index)
-        lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
-            else self.vehicle.lane_index[2]
-        scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+        longitudinal, lateral = self.vehicle.lane.local_coordinates(self.vehicle.position)
+        lane_centering_reward = 1/(1+self.config["lane_centering_cost"]*lateral**2)
+        speed_reward = 1/(1+self.config["lane_centering_cost"]*(self.vehicle.speed * np.sin(self.vehicle.heading))**2)
         reward = \
-            + self.config["collision_reward"] * self.vehicle.crashed \
-            + self.config["right_lane_reward"] * lane / max(len(neighbours) - 1, 1) \
-            + self.config["high_speed_reward"] * np.clip(scaled_speed, 0, 1)
-        reward = utils.lmap(reward,
-                          [self.config["collision_reward"],
-                           self.config["high_speed_reward"] + self.config["right_lane_reward"]],
-                          [0, 1])
-        reward = 0 if not self.vehicle.on_road else reward
+            + speed_reward \
+            + (self.config["arrival_reward"]) * self.is_success() \
+            + lane_centering_reward
+
+        if self.vehicle.crashed or not self.vehicle.on_road:
+          reward = self.config["collision_reward"]
+        # print(np.cos(self.vehicle.heading))
         return reward
 
 

@@ -21,10 +21,10 @@ env = gym.make("lvxinfei-v0")
 env.reset()
 
 
-ddpg = torch.load('./weights_test/ddpg_net0.pth')
+ddpg = torch.load('./weights_test/ddpg_net1.pth')
+ddpg1 = torch.load('./weights_test/ddpg_net2.pth')
 
-
-max_steps = 1
+max_steps = 10
 rewards = []
 batch_size = 32
 speed = []
@@ -34,16 +34,23 @@ with torch.no_grad():
         state = env.reset()
         state = torch.flatten(torch.tensor(state))
         done = False
-
+        t=0
         while not done:
-            action = ddpg.policy_net.get_action(state)
+            if t>=10:
+            	action = ddpg.policy_net.get_action(state)
+            	print(0)
+            elif t<10:
+            	action = ddpg1.policy_net.get_action(state)
+            	print(1)
+            # action = ddpg.policy_net.get_action(state)
             next_state, reward, done, info = env.step(action)
-            speed.append(info['vehicle heading'])
-            print(info)
+            speed.append(info['speed'])
+            # print(info)
             next_state = torch.flatten(torch.tensor(next_state))
             state = next_state
             env.render()
+            t=t+1
 env.close()
 
-plt.plot(speed)
-plt.show()
+# plt.plot(speed)
+# plt.show()

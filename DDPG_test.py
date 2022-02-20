@@ -17,14 +17,14 @@ device  = torch.device("cuda" if use_cuda else "cpu")
 
 
 
-env = gym.make("lvxinfei-v0")
+env = gym.make("lvxinfei-v1")
 env.reset()
 
 
-ddpg = torch.load('./weights_test/ddpg_net0.pth')
+ddpg = torch.load('./weights_test/ddpg_net1-1.pth')
 
 
-max_steps = 1
+max_steps = 7
 rewards = []
 batch_size = 32
 speed = []
@@ -45,5 +45,5 @@ with torch.no_grad():
             env.render()
 env.close()
 
-plt.plot(speed)
-plt.show()
+# plt.plot(speed)
+# plt.show()

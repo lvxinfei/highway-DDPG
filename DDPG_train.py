@@ -18,7 +18,7 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-env = gym.make("lvxinfei-v2")
+env = gym.make("lvxinfei-v1")
 env.reset()
 # env = NormalizedActions(env)
 
@@ -47,9 +47,9 @@ writer = SummaryWriter("./logs_train")
 total_train_step = 0
 #加载模型===========================================================
 #加载上次训练好的模型，如果test_flag=True,则加载已保存的模型
-test_flag=False#True  #True
+test_flag=False#True  #False
 if test_flag:
-    ddpg = torch.load('./weights_test/ddpg_net.pth')
+    ddpg = torch.load('./weights_test/ddpg_net1.pth')
     # ddpg.value_net.load_state_dict(torch.load('./weights_test/ddpg_value_net.pth'))
     # ddpg.policy_net.load_state_dict(torch.load('./weights_test/ddpg_policy_net.pth'))
     # ddpg.target_value_net.load_state_dict(torch.load('./weights_test/ddpg_target_value_net.pth'))
@@ -103,7 +103,7 @@ env.close()
 writer.close()
 
 #仅保存模型参数
-torch.save(ddpg, './weights_test/ddpg_net2.pth')
+torch.save(ddpg, './weights_test/ddpg_net1-1.pth')
 # torch.save(ddpg.value_net.state_dict(), './weights_test/ddpg_value_net.pth')
 # torch.save(ddpg.target_value_net.state_dict(), './weights_test/ddpg_target_value_net.pth')
 # torch.save(ddpg.policy_net.state_dict(), './weights_test/ddpg_policy_net.pth')

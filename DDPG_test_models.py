@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import pprint
 import highway_env
 from DDPG_net import * 
+from highway_env.vehicle.behavior import IDMVehicle
 
 use_cuda = torch.cuda.is_available()
 device  = torch.device("cuda" if use_cuda else "cpu")
@@ -21,10 +22,10 @@ env = gym.make("lvxinfei-v0")
 env.reset()
 
 
-ddpg = torch.load('./weights_test/ddpg_net1.pth')
-ddpg1 = torch.load('./weights_test/ddpg_net2.pth')
+ddpg = torch.load('./weights_test/ddpg_net1.pth')#直线形模型
+ddpg1 = torch.load('./weights_test/ddpg_net2.pth')#曲线形模型
 
-max_steps = 10
+max_steps = 5
 rewards = []
 batch_size = 32
 speed = []
@@ -44,8 +45,22 @@ with torch.no_grad():
             	print(1)
             # action = ddpg.policy_net.get_action(state)
             next_state, reward, done, info = env.step(action)
-            speed.append(info['speed'])
-            # print(info)
+
+            '''info字典中含有的车辆信息'''
+            '''
+            "speed": self.vehicle.speed,
+            "crashed": self.vehicle.crashed,
+            "vehicle heading": self.vehicle.heading,#车辆相对于大地坐标系的指向角，以pi为单位
+            "action": action,
+            'x': self.vehicle.position[0],
+            'y': self.vehicle.position[1],
+            "vx": self.vehicle.velocity[0],
+            'vy': self.vehicle.velocity[1],
+            'sin_h': self.vehicle.direction[1],
+            "cos_h": self.vehicle.direction[0]
+            '''
+            # speed.append(info['vehicle heading'])
+            print(info)
             next_state = torch.flatten(torch.tensor(next_state))
             state = next_state
             env.render()

@@ -17,14 +17,14 @@ device  = torch.device("cuda" if use_cuda else "cpu")
 
 
 
-env = gym.make("lvxinfei-v2")
+env = gym.make("lvxinfei-v0")
 env.reset()
 
 
-ddpg = torch.load('./weights_test/ddpg_net2-1.pth')
+ddpg = torch.load('./weights_test/ddpg_net0-1.pth')
 
 
-max_steps = 1
+max_steps = 5
 rewards = []
 batch_size = 32
 speed = []
@@ -38,7 +38,7 @@ with torch.no_grad():
         while not done:
             action = ddpg.policy_net.get_action(state)
             next_state, reward, done, info = env.step(action)
-            speed.append(info['cos_h'])
+            speed.append(info['vx'])
             print(info)
             next_state = torch.flatten(torch.tensor(next_state))
             state = next_state

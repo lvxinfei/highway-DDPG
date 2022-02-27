@@ -18,7 +18,7 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-env = gym.make("lvxinfei-v2")
+env = gym.make("lvxinfei-v0")
 env.reset()
 # env = NormalizedActions(env)
 
@@ -37,7 +37,7 @@ policy_lr = 1e-4
 # ddpg = DDPG(action_dim, state_dim, hidden_dim, value_lr, policy_lr)
 ddpg = DDPG_net.DDPG(action_dim, state_dim, hidden_dim, value_lr, policy_lr)
 
-max_steps = 550
+max_steps = 1000
 rewards = []
 batch_size = 32
 VAR = 1  # control exploration
@@ -103,7 +103,7 @@ env.close()
 writer.close()
 
 #仅保存模型参数
-torch.save(ddpg, './weights_test/ddpg_net2-1.pth')
+torch.save(ddpg, './weights_test/ddpg_net0-1.pth')
 # torch.save(ddpg.value_net.state_dict(), './weights_test/ddpg_value_net.pth')
 # torch.save(ddpg.target_value_net.state_dict(), './weights_test/ddpg_target_value_net.pth')
 # torch.save(ddpg.policy_net.state_dict(), './weights_test/ddpg_policy_net.pth')

@@ -24,7 +24,7 @@ env.reset()
 ddpg = torch.load('./weights_test/ddpg_net0-1.pth')
 
 
-max_steps = 5
+max_steps = 15
 rewards = []
 batch_size = 32
 speed = []

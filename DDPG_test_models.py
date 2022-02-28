@@ -12,6 +12,10 @@ import pprint
 import highway_env
 from DDPG_net import * 
 from highway_env.vehicle.behavior import IDMVehicle
+import json
+from collections import defaultdict
+
+
 
 use_cuda = torch.cuda.is_available()
 device  = torch.device("cuda" if use_cuda else "cpu")
@@ -25,10 +29,13 @@ env.reset()
 ddpg = torch.load('./weights_test/ddpg_net1.pth')#直线形模型
 ddpg1 = torch.load('./weights_test/ddpg_net2.pth')#曲线形模型
 
-max_steps = 5
+max_steps = 1
 rewards = []
 batch_size = 32
-speed = []
+output1 = []
+output2 = []
+info_out = defaultdict(list)
+
 with torch.no_grad():
     for step in range(max_steps):
         print("================第{}回合======================================".format(step+1))
@@ -59,13 +66,17 @@ with torch.no_grad():
             'sin_h': self.vehicle.direction[1],
             "cos_h": self.vehicle.direction[0]
             '''
-            # speed.append(info['vehicle heading'])
-            print(info)
+            # speed.append(info['vehicle heading']*180/np.pi)
+            info_out["vehicle heading"].append(info['vehicle heading'])
+            info_out['road heading'].append(info['road heading'])
+            # print(info)
+
             next_state = torch.flatten(torch.tensor(next_state))
             state = next_state
             env.render()
             t=t+1
 env.close()
 
-# plt.plot(speed)
-# plt.show()
+with open("1.json", 'w', encoding='UTF-8') as f:
+    f.write(json.dumps(info_out))
+

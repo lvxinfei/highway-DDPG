@@ -61,14 +61,22 @@ with torch.no_grad():
             "action": action,
             'x': self.vehicle.position[0],
             'y': self.vehicle.position[1],
-            "vx": self.vehicle.velocity[0],
+            "vx": self.vehicle.velocity[0],#速度与sin_h的乘积
             'vy': self.vehicle.velocity[1],
             'sin_h': self.vehicle.direction[1],
             "cos_h": self.vehicle.direction[0]
             '''
-            # speed.append(info['vehicle heading']*180/np.pi)
+            # 对一些信息进行存储
+            info_out["speed"].append(info['speed'])
+            info_out["x"].append(info['x'])
+            info_out["y"].append(info['y'])
+            info_out["vx"].append(info['vx'])
+            info_out["vy"].append(info['vy'])
+            info_out["sin_h"].append(info['sin_h'])
+            info_out["cos_h"].append(info['cos_h'])
             info_out["vehicle heading"].append(info['vehicle heading'])
             info_out['road heading'].append(info['road heading'])
+
             # print(info)
 
             next_state = torch.flatten(torch.tensor(next_state))
@@ -77,6 +85,6 @@ with torch.no_grad():
             t=t+1
 env.close()
 
-with open("1.json", 'w', encoding='UTF-8') as f:
+with open("./JSON/v0.json", 'w', encoding='UTF-8') as f:
     f.write(json.dumps(info_out))
 

@@ -20,11 +20,11 @@ device  = torch.device("cuda" if use_cuda else "cpu")
 
 
 
-env = gym.make("lvxinfei-v1")
+env = gym.make("lvxinfei-v0")
 env.reset()
 
 
-ddpg = torch.load('./weights_test/ddpg_net1-1.pth')
+ddpg = torch.load('./weights_test/ddpg_net0.pth')
 
 
 max_steps = 1
@@ -61,5 +61,5 @@ with torch.no_grad():
             env.render()
 env.close()
 
-with open("./JSON/v1.json", 'w', encoding='UTF-8') as f:
-    f.write(json.dumps(info_out))
+# with open("./JSON/v1.json", 'w', encoding='UTF-8') as f:
+#     f.write(json.dumps(info_out))

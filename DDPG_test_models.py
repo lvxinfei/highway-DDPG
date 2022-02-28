@@ -27,7 +27,7 @@ env.reset()
 
 
 ddpg = torch.load('./weights_test/ddpg_net1.pth')#直线形模型
-ddpg1 = torch.load('./weights_test/ddpg_net2.pth')#曲线形模型
+ddpg1 = torch.load('./weights_test/ddpg_net2-2.pth')#曲线形模型
 
 max_steps = 1
 rewards = []
@@ -44,12 +44,16 @@ with torch.no_grad():
         done = False
         t=0
         while not done:
-            if t>=10:
-            	action = ddpg.policy_net.get_action(state)
-            	print(0)
-            elif t<10:
-            	action = ddpg1.policy_net.get_action(state)
-            	print(1)
+            if t>=2:
+                if info_out['road heading'][-1] - info_out['road heading'][-2] != 0:#曲线形
+                    action = ddpg1.policy_net.get_action(state)
+                    print("曲线形")
+                else:#直线形
+                    action = ddpg.policy_net.get_action(state)
+                    print("直线形")
+            elif t<2:
+                print("直线形")
+                action = ddpg.policy_net.get_action(state)
             # action = ddpg.policy_net.get_action(state)
             next_state, reward, done, info = env.step(action)
 

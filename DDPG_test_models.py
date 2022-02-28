@@ -85,6 +85,6 @@ with torch.no_grad():
             t=t+1
 env.close()
 
-with open("./JSON/v0.json", 'w', encoding='UTF-8') as f:
+with open("./JSON/v00.json", 'w', encoding='UTF-8') as f:
     f.write(json.dumps(info_out))
 
